@@ -6,15 +6,23 @@ import theme from './theme'
 import Box from '@mui/material/Box';
 import TodoList from './UI Elements/TodoList';
 
+
 function App() {
+
+  
   return (
     <ThemeProvider theme={theme}>
+  
     <>
+    
    <Navbar />
-   <Box style={{padding: '100px 300px 100px 300px'}} >
+   <Box style={{padding: '4rem 19rem 4rem 19rem'}} >
    <TodoList />
 </Box>
+
+ 
     </>
+    
     </ThemeProvider >
   );
 }

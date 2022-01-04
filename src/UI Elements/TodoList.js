@@ -3,55 +3,59 @@ import Box from '@mui/material/Box';
 import { Typography } from '@mui/material';
 import Checkbox from '@mui/material/Checkbox';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import SubdirectoryArrowRightIcon from '@mui/icons-material/SubdirectoryArrowRight';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import moment from 'moment';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import Slide from '@mui/material/Slide';
+
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
 const TodoList = () => {
   const [inputData, setInputData] = useState('');
   const [items, setItems] = useState([]);
-  let [count, setCount] = useState('0');
-  let [countn, setCountn] = useState('0');
+  const [open, setOpen] = React.useState(false);
 
-  const addItems = () => {
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const addItem = () => {
     if (!inputData) {
     } else {
-      setItems([...items, { name: inputData, Done: 0 }]);
+      setItems([...items, { name: inputData, done: 'false' }]);
       setInputData('');
-      count++;
-      setCount(count);
     }
   };
-  const deleteItems = (id) => {
+  const deleteItem = (id) => {
     const updatedItems = items.filter((elem, ind) => {
       return ind !== id;
     });
     setItems(updatedItems);
-    
-    count--;
-    setCount(count);
-    }
-    const doneDeleteItems = (id) => {
-      const updatedItems = items.filter((elem, ind) => {
-        return ind !== id;
-      });
-      setItems(updatedItems);
-      
-      countn--;
-      setCountn(countn);
-      }
+  };
 
-
-  
   const onCheck = (id, event) => {
     let tempItems = [...items];
-    tempItems[id].Done = 1;
+    tempItems[id].done = 'true';
     setItems(tempItems);
-    countn++;
-    setCountn(countn);
-    count--;
-    setCount(count);
+  };
+  const onUnCheck = (id, event) => {
+    let tempItems = [...items];
+    tempItems[id].done = 'false';
+    setItems(tempItems);
+    console.log(items);
   };
 
   const label = { inputProps: { 'aria-label': 'Checkbox' } };
@@ -69,20 +73,25 @@ const TodoList = () => {
           </Typography>
         </Box>
         <Box
+          
           style={{
-            width: 650,
+            width: '42rem',
             maxWidth: '10',
             display: 'flex',
-            alignItems: 'center',
             marginTop: 20,
           }}
         >
           <TextField
             fullWidth
+            error={inputData.length ? false : true}
+            required
             autoComplete="off"
             label="What needs to be done?"
-            id="fullWidth"
+            
+            id="outlined-required"
+            name="input"
             value={inputData}
+            helperText={inputData.length ? '' :'Please write task name' }
             onChange={(e) => setInputData(e.target.value)}
             InputProps={{
               style: {
@@ -101,12 +110,14 @@ const TodoList = () => {
           <Button
             variant="contained"
             size="medium"
-            onClick={addItems}
+            onClick={addItem}
             style={{
+              borderRadius: '8px',
               background: '#6565E4',
               fontWeight: 'bold',
               marginLeft: 15,
-              height: 40,
+              height: '2.5rem',
+              marginTop:'0.6rem'
             }}
           >
             Done
@@ -115,16 +126,22 @@ const TodoList = () => {
       </Box>
       <Box>
         <Box style={{ marginTop: 60 }}>
-          <Typography variant="h3">Things to do ({count})</Typography>
+          <Typography variant="h3">
+            Things to do (
+            {items.length
+              ? items?.filter((item) => item.done === 'false').length
+              : 0}
+            )
+          </Typography>
 
           {items.map((elem, ind) => {
             return (
-              elem.Done === 0 && (
+              elem.done === 'false' && (
                 <Box
                   style={{
                     background: '#252531',
-                    height: 50,
-                    width: 650,
+                    height: '3rem',
+                    width: '40rem',
                     borderRadius: '8px',
                     display: 'flex',
                     alignItems: 'center',
@@ -132,26 +149,42 @@ const TodoList = () => {
                     marginTop: 10,
                   }}
                 >
-                  <Box
-                    
-                    style={{ display: 'flex', alignItems: 'center' }}
-                  >
+                  <Box style={{ display: 'flex', alignItems: 'center' }}>
                     <Checkbox
                       onChange={() => {
-                        onCheck(ind)}}
+                        onCheck(ind);
+                      }}
                       {...label}
                       style={{ color: '#6565E4' }}
                     />
                     <Typography variant="h4">{elem.name}</Typography>
                   </Box>
-                  <DeleteOutlineIcon
-                    onClick={() => deleteItems(ind)}
-                    style={{
-                      color: 'grey',
-                      marginRight: 20,
-                      cursor: 'pointer',
-                    }}
-                  />
+                  <span>
+                    <ContentCopyIcon
+                      onClick={() => {
+                        setItems([
+                          ...items,
+                          { name: elem.name, done: 'false' },
+                        ]);
+                      }}
+                      style={{
+                        color: 'grey',
+                        marginRight: 20,
+                        cursor: 'pointer',
+                      }}
+                    />
+                    <DeleteOutlineIcon
+                      onClick={() => {
+                        deleteItem(ind);
+                        handleClickOpen();
+                      }}
+                      style={{
+                        color: 'grey',
+                        marginRight: 20,
+                        cursor: 'pointer',
+                      }}
+                    />
+                  </span>
                 </Box>
               )
             );
@@ -159,16 +192,22 @@ const TodoList = () => {
         </Box>
 
         <Box style={{ marginTop: 60 }}>
-          <Typography variant="h3">Things done ({countn})</Typography>
+          <Typography variant="h3">
+            Things done (
+            {items.length
+              ? items?.filter((item) => item.done === 'true').length
+              : 0}
+            )
+          </Typography>
           {items.map((elem, ind) => {
             return (
-              elem.Done === 1 && (
+              elem.done === 'true' && (
                 <Box
                   style={{
                     marginTop: 10,
                     background: '#252531',
-                    height: 50,
-                    width: 650,
+                    height: '3rem',
+                    width: '40rem',
                     borderRadius: '8px',
                     display: 'flex',
                     alignItems: 'center',
@@ -178,19 +217,61 @@ const TodoList = () => {
                   <Box style={{ display: 'flex', alignItems: 'center' }}>
                     <Checkbox
                       {...label}
+                      onChange={(e) => {
+                        onUnCheck(ind);
+                      }}
                       defaultChecked
                       style={{ color: '#6565E4' }}
                     />
                     <Typography variant="h5">{elem.name}</Typography>
                   </Box>
-                  <DeleteOutlineIcon 
-                  onClick={() => doneDeleteItems(ind)}
-                    style={{ color: 'grey', marginRight: 20, cursor:'pointer' }}
-                  />
+                  <span>
+                    <ContentCopyIcon
+                      onClick={() => {
+                        setItems([...items, { name: elem.name, done: 'true' }]);
+                      }}
+                      style={{
+                        color: 'grey',
+                        marginRight: 20,
+                        cursor: 'pointer',
+                      }}
+                    />
+                    <DeleteOutlineIcon
+                      onClick={() => {
+                        deleteItem(ind);
+                        handleClickOpen();
+                      }}
+                      style={{
+                        color: 'grey',
+                        marginRight: 20,
+                        cursor: 'pointer',
+                      }}
+                    />
+                  </span>
                 </Box>
               )
             );
           })}
+        </Box>
+        <Box>
+          <Dialog
+            open={open}
+            TransitionComponent={Transition}
+            keepMounted
+            onClose={handleClose}
+            aria-describedby="alert-dialog-slide-description"
+          >
+            <DialogTitle>{'Confirmation Message'}</DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-slide-description">
+                Do you really want to delete this task?
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleClose}>Yes</Button>
+              <Button onClick={handleClose}>No</Button>
+            </DialogActions>
+          </Dialog>
         </Box>
       </Box>
     </>
