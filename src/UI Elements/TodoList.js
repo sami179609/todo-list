@@ -87,7 +87,6 @@ const TodoList = () => {
             required
             autoComplete="off"
             label="What needs to be done?"
-            
             id="outlined-required"
             name="input"
             value={inputData}
@@ -174,9 +173,7 @@ const TodoList = () => {
                       }}
                     />
                     <DeleteOutlineIcon
-                      onClick={() => {
-                        deleteItem(ind);
-                        handleClickOpen();
+                      onClick={() => {handleClickOpen();
                       }}
                       style={{
                         color: 'grey',
@@ -185,6 +182,33 @@ const TodoList = () => {
                       }}
                     />
                   </span>
+                  
+                  <Dialog
+            open={ open}
+            TransitionComponent={Transition}
+            keepMounted
+            onClose={ handleClose}
+            aria-describedby="alert-dialog-slide-description"
+          >
+            <DialogTitle>{'Confirmation Message'}</DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-slide-description">
+                Do you really want to delete this task?
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button 
+                onClick={() => {
+                  deleteItem(ind);
+                  setOpen(false);
+                }}
+              >
+                Yes
+              </Button>
+              <Button onClick={ handleClose}>No</Button>
+            </DialogActions>
+          </Dialog>
+          
                 </Box>
               )
             );
@@ -237,23 +261,16 @@ const TodoList = () => {
                       }}
                     />
                     <DeleteOutlineIcon
-                      onClick={() => {
-                        deleteItem(ind);
-                        handleClickOpen();
-                      }}
+                      onClick={ () => { handleClickOpen()} }
                       style={{
                         color: 'grey',
                         marginRight: 20,
                         cursor: 'pointer',
                       }}
                     />
+         
                   </span>
-                </Box>
-              )
-            );
-          })}
-        </Box>
-        <Box>
+                  
           <Dialog
             open={open}
             TransitionComponent={Transition}
@@ -268,11 +285,20 @@ const TodoList = () => {
               </DialogContentText>
             </DialogContent>
             <DialogActions>
-              <Button onClick={handleClose}>Yes</Button>
-              <Button onClick={handleClose}>No</Button>
+              <Button onClick={() => {
+                deleteItem(ind)
+                setOpen(false);
+                }}>Yes</Button>
+              <Button onClick={ handleClose}>No</Button>
             </DialogActions>
           </Dialog>
+        
+                </Box>
+              )
+            );
+          })}
         </Box>
+      
       </Box>
     </>
   );
